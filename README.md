@@ -1,0 +1,444 @@
+# SlimUp - 减肥打卡激励App
+
+> 一款面向减肥人群的记录与激励工具，帮助用户通过"记录数据 → 看到进步 → 获得激励 → 坚持下去"的闭环，养成健康习惯。
+
+## 产品定位
+
+- **核心场景**：每天1-3次，每次1-3分钟的碎片化记录
+- **核心理念**：和自己比，看进步
+- **目标用户**：25-45岁有减重需求的人群
+- **产品形态**：单机安卓App + 云端数据备份
+
+---
+
+## 技术架构
+
+### 架构图
+
+```
+┌─────────────────────────────────────────────────────┐
+│                    用户手机                           │
+│                                                     │
+│   ┌───────────────────────────────────────────┐     │
+│   │            Flutter App                     │     │
+│   │                                           │     │
+│   │  ┌──────────┐  ┌──────────┐  ┌─────────┐ │     │
+│   │  │ Riverpod │  │  Drift   │  │fl_chart │ │     │
+│   │  │ 状态管理  │  │ SQLite   │  │  图表    │ │     │
+│   │  └──────────┘  │ 本地数据库│  └─────────┘ │     │
+│   │                └─────┬────┘               │     │
+│   │                      │                     │     │
+│   │               ┌──────▼──────┐             │     │
+│   │               │  同步引擎    │             │     │
+│   │               │  本地优先    │             │     │
+│   │               └──────┬──────┘             │     │
+│   └──────────────────────┼────────────────────┘     │
+│                          │                          │
+└──────────────────────────┼──────────────────────────┘
+                           │ HTTPS
+                           ▼
+              ┌─────────────────────────┐
+              │      Supabase 云端       │
+              │                         │
+              │  ┌────────┐ ┌────────┐  │
+              │  │  Auth  │ │Postgre │  │
+              │  │ 用户认证│ │  SQL   │  │
+              │  └────────┘ │ 云数据库│  │
+              │             └────────┘  │
+              └─────────────────────────┘
+```
+
+### 数据流
+
+```
+用户操作
+  │
+  ▼
+Riverpod 状态变更
+  │
+  ├──→ 写入 Drift（SQLite）──→ UI 立刻刷新
+  │
+  └──→ 同步引擎检测网络
+         │
+         ├── 有网络 → 推送到 Supabase → 标记 synced = 1
+         │
+         └── 无网络 → 等待，下次有网时自动重试
+```
+
+---
+
+## 技术栈
+
+### 前端框架
+
+| 组件 | 选型 | 说明 |
+|------|------|------|
+| UI框架 | **Flutter 3.x** | 原生渲染，动画丝滑 |
+| 状态管理 | **Riverpod 2.0** | Flutter 生态主流，类型安全 |
+| 路由 | **go_router** | 声明式路由，支持深链接 |
+| 主题 | **Material 3** | 动态取色 + 深色模式 |
+
+### 本地数据
+
+| 组件 | 选型 | 说明 |
+|------|------|------|
+| 数据库 | **Drift（SQLite ORM）** | 类型安全的 SQLite 操作，自动生成代码 |
+| 本地存储 | **SharedPreferences** | 轻量键值对（设置项、登录态） |
+
+### 云端服务
+
+| 组件 | 选型 | 说明 |
+|------|------|------|
+| 云数据库 | **Supabase** | PostgreSQL + REST API 自动生成 |
+| 用户认证 | **Supabase Auth** | 邮箱/手机号登录 |
+| 数据同步 | **自写同步引擎** | 本地优先，网络可用时后台同步 |
+
+### UI组件
+
+| 组件 | 选型 | 说明 |
+|------|------|------|
+| 图表 | **fl_chart** | 折线图（体重趋势）、柱状图（打卡统计） |
+| 动画 | **Rive + Flutter内置** | 打卡成功动效、数字变化动效 |
+| 日历 | **table_calendar** | 打卡日历视图 |
+
+### 功能插件
+
+| 组件 | 选型 | 说明 |
+|------|------|------|
+| 分享 | **share_plus** | 生成打卡海报分享到微信 |
+| 截图 | **screenshot** | 将 Widget 渲染为图片 |
+| 网络检测 | **connectivity_plus** | 判断离线/在线，决定是否同步 |
+| 本地通知 | **flutter_local_notifications** | 每日提醒打卡 |
+| 图片选择 | **image_picker** | 用户头像 |
+| 文件导出 | **path_provider** | 数据导出为JSON文件 |
+
+### 打包部署
+
+| 组件 | 选型 | 说明 |
+|------|------|------|
+| CI/CD | **GitHub Actions** | 推代码自动打包 APK |
+| 安卓签名 | **jks 证书** | release 签名 |
+| 分发 | **GitHub Releases** | 下载 APK 直装 |
+
+---
+
+## 数据库设计
+
+### 本地 SQLite 与云端 PostgreSQL 表结构一致
+
+### users - 用户表
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | UUID | 主键 |
+| email | VARCHAR | 邮箱 |
+| nickname | VARCHAR | 昵称 |
+| avatar_url | VARCHAR | 头像地址 |
+| height | DECIMAL | 身高（cm） |
+| target_weight | DECIMAL | 目标体重（kg） |
+| created_at | DATETIME | 创建时间 |
+| updated_at | DATETIME | 更新时间 |
+
+### weight_records - 体重记录表
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | UUID | 主键 |
+| user_id | UUID | 外键 → users |
+| weight | DECIMAL | 体重（kg） |
+| record_date | DATE | 记录日期 |
+| note | VARCHAR | 备注 |
+| synced | BOOLEAN | 是否已同步云端 |
+| created_at | DATETIME | 创建时间 |
+| updated_at | DATETIME | 更新时间 |
+
+### checkins - 打卡记录表
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | UUID | 主键 |
+| user_id | UUID | 外键 → users |
+| checkin_date | DATE | 打卡日期 |
+| type | TINYINT | 1:体重 2:饮食 3:运动 |
+| synced | BOOLEAN | 是否已同步云端 |
+| created_at | DATETIME | 创建时间 |
+
+### achievements - 成就表
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | UUID | 主键 |
+| user_id | UUID | 外键 → users |
+| type | VARCHAR | 成就类型标识 |
+| unlocked_at | DATETIME | 解锁时间 |
+| synced | BOOLEAN | 是否已同步云端 |
+
+### motivations - 激励语句表（仅本地）
+
+| 字段 | 类型 | 说明 |
+|------|------|------|
+| id | INTEGER | 主键 |
+| content | VARCHAR | 激励文案 |
+| category | VARCHAR | 分类：坚持/减重/心态 |
+
+---
+
+## 页面结构
+
+```
+App 页面树：
+│
+├── 🏠 首页 (HomePage)
+│   ├── 今日体重卡片
+│   ├── 连续打卡天数
+│   ├── 距目标还差多少
+│   └── 每日激励语
+│
+├── 📝 记录 (RecordPage)
+│   ├── 体重录入（滑块选择器）
+│   ├── 日期选择
+│   └── 备注
+│
+├── 📊 趋势 (TrendPage)
+│   ├── 体重折线图（7天/30天/全部）
+│   ├── BMI 曲线
+│   └── 打卡日历
+│
+├── 🏆 成就 (AchievementPage)
+│   ├── 已解锁成就列表
+│   ├── 未解锁成就（灰色）
+│   └── 进度条
+│
+├── 👤 我的 (ProfilePage)
+│   ├── 个人信息编辑
+│   ├── 目标体重设置
+│   ├── 数据导出
+│   ├── 云同步设置
+│   ├── 深色模式切换
+│   └── 关于
+│
+└── 🔔 通知
+    └── 每日提醒打卡（本地通知）
+```
+
+---
+
+## 成就系统
+
+| 成就 | 解锁条件 | 图标 |
+|------|---------|------|
+| 初次打卡 | 记录第一次体重 | 🔥 |
+| 坚持7天 | 连续打卡7天 | 📅 |
+| 坚持30天 | 连续打卡30天 | 💪 |
+| 坚持100天 | 连续打卡100天 | 🎯 |
+| 第一个1kg | 累计减重1kg | ⬇️ |
+| 第一个5kg | 累计减重5kg | ⬇️ |
+| 达成目标 | 体重达到目标体重 | 🏆 |
+| BMI正常 | BMI回到18.5-24范围 | 📏 |
+| 数据达人 | 累计记录100次 | 📊 |
+| 早起打卡 | 在早上8点前记录 | 🌅 |
+
+---
+
+## 项目结构
+
+```
+slimup/
+├── lib/
+│   ├── main.dart                    # 入口
+│   ├── app.dart                     # App配置（主题/路由）
+│   │
+│   ├── core/                        # 核心
+│   │   ├── database/                # Drift 数据库定义
+│   │   │   ├── app_database.dart
+│   │   │   ├── tables.dart          # 表结构定义
+│   │   │   └── daos/                # 数据访问对象
+│   │   ├── sync/                    # 同步引擎
+│   │   │   ├── sync_engine.dart
+│   │   │   └── sync_status.dart
+│   │   ├── network/                 # 网络层
+│   │   │   └── supabase_client.dart
+│   │   └── constants/               # 常量
+│   │       ├── achievements.dart
+│   │       └── motivations.dart
+│   │
+│   ├── features/                    # 功能模块
+│   │   ├── home/                    # 首页
+│   │   │   ├── home_page.dart
+│   │   │   └── widgets/
+│   │   ├── record/                  # 记录体重
+│   │   │   ├── record_page.dart
+│   │   │   └── widgets/
+│   │   ├── trend/                   # 趋势图表
+│   │   │   ├── trend_page.dart
+│   │   │   └── widgets/
+│   │   ├── achievement/             # 成就系统
+│   │   │   ├── achievement_page.dart
+│   │   │   └── widgets/
+│   │   ├── profile/                 # 个人设置
+│   │   │   ├── profile_page.dart
+│   │   │   └── widgets/
+│   │   └── auth/                    # 登录注册
+│   │       ├── login_page.dart
+│   │       └── register_page.dart
+│   │
+│   ├── shared/                      # 公共组件
+│   │   ├── widgets/                 # 通用Widget
+│   │   └── utils/                   # 工具函数
+│   │
+│   └── routing/                     # 路由配置
+│       └── app_router.dart
+│
+├── android/                         # 安卓配置
+├── assets/                          # 静态资源
+│   ├── images/
+│   ├── animations/                  # Rive动画文件
+│   └── fonts/
+│
+├── .github/workflows/build.yml      # GitHub Actions 自动打包
+├── pubspec.yaml                     # 依赖配置
+└── README.md                        # 本文档
+```
+
+---
+
+## 同步引擎核心逻辑
+
+### 设计原则：本地优先（Offline-First）
+
+```
+写入流程：
+  用户记录体重 → 写入本地SQLite → UI立刻刷新 → 后台尝试同步到Supabase
+
+读取流程：
+  打开App → 读本地SQLite → 立刻展示 → 后台检查云端是否有新数据
+
+换手机流程：
+  新手机登录 → 从Supabase拉取全量数据 → 写入本地SQLite → 正常使用
+```
+
+### 冲突策略
+
+- 基于时间戳，后写入的覆盖先写入的
+- 每条记录都有 `synced` 字段标记同步状态
+- 未同步记录优先上传，同步完成标记为已同步
+
+---
+
+## 打包与部署
+
+### 方式一：GitHub Actions 自动打包（推荐）
+
+无需本地安装任何开发环境，推代码自动出APK：
+
+1. 将代码推送到 GitHub 仓库
+2. GitHub Actions 自动触发构建
+3. 构建完成后在 **Releases** 页面下载 APK
+4. 安装到手机即可使用
+
+### 方式二：Codemagic 云打包
+
+1. 访问 [codemagic.com](https://codemagic.com/)
+2. 用 GitHub 账号登录，选择仓库
+3. 点击 "Start new build"
+4. 等待构建完成，下载 APK
+
+免费额度：每月 500 分钟构建时间
+
+### 方式三：本地打包
+
+**环境准备：**
+
+1. 安装 Flutter SDK：[docs.flutter.dev/get-started/install](https://docs.flutter.dev/get-started/install)
+2. 安装 Android Studio（自带 Android SDK）
+3. 终端运行 `flutter doctor` 检查环境
+
+**生成签名证书（一次性）：**
+
+```bash
+keytool -genkey -v \
+  -keystore slimup-key.jks \
+  -keyalg RSA -keysize 2048 -validity 10000 \
+  -alias slimup
+```
+
+> 签名证书务必妥善保管，丢失后将无法更新App（安卓签名不一致无法覆盖安装）
+
+**打包APK：**
+
+```bash
+cd slimup
+flutter pub get
+flutter build apk
+```
+
+产物路径：`build/app/outputs/flutter-apk/app-release.apk`
+
+---
+
+## 费用概览
+
+| 项目 | 费用 |
+|------|------|
+| Flutter SDK | 免费 |
+| Supabase（1500用户以内） | 免费 |
+| GitHub 私有仓库 | 免费 |
+| GitHub Actions（每月2000分钟） | 免费 |
+| 域名 | 不需要 |
+| 服务器 | 不需要 |
+| 备案 | 不需要 |
+| **总计** | **0元** |
+
+### Supabase 费用预估
+
+| 阶段 | 用户量 | 费用 |
+|------|--------|------|
+| MVP | 0-1500人 | 0元（免费额度） |
+| 增长期 | 1500-5万人 | ~180元/月（Pro版） |
+| 规模化 | 5万+ | 按需升级或迁移自建后端 |
+
+---
+
+## 开发计划
+
+| 阶段 | 目标 | 核心功能 | 预计周期 |
+|------|------|---------|---------|
+| **MVP** | 验证需求 | 体重记录 + 趋势图 + 每日打卡激励语 | 2周 |
+| **V2** | 增强激励 | 成就系统 + 打卡海报分享 + 深色模式 | 2周 |
+| **V3** | 数据安全 | Supabase云同步 + 换手机恢复 + 数据导出 | 2周 |
+| **V4** | 智能化 | 饮食记录 + AI分析建议 + 智能提醒 | 4周 |
+
+---
+
+## 技术选型决策记录
+
+### 为什么选 Flutter 而不是 uni-app？
+
+| 维度 | Flutter | uni-app |
+|------|---------|---------|
+| 渲染方式 | 原生渲染 | WebView渲染 |
+| 动画流畅度 | 60fps | 受限于WebView |
+| 包体积 | 8-15MB | 20-30MB |
+| 图表性能 | fl_chart原生绘制 | WebView内渲染 |
+
+### 为什么选 Supabase 而不是自建后端？
+
+| 维度 | Supabase | 自建后端 |
+|------|----------|---------|
+| 开发成本 | 调API即可 | 需写全套后端 |
+| 运维成本 | 零 | 需维护服务器 |
+| 月费用 | 免费（小规模） | 50元/月起 |
+| 备案 | 不需要 | 需要 |
+
+### 为什么选 Drift 而不是原生 SQLite？
+
+- 类型安全，编译期检查SQL错误
+- 自动生成DAO代码，减少手写样板代码
+- 内置数据库迁移机制，版本升级无忧
+- 支持响应式查询，数据变化自动刷新UI
+
+---
+
+## 许可证
+
+私有项目，未授权禁止使用
