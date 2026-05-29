@@ -20,18 +20,11 @@ jobs:
           channel: 'stable'
           cache: true
 
+      - name: Create local.properties
+        run: echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+
       - name: Install dependencies
         run: flutter pub get
-
-      - name: Cache build_runner
-        uses: actions/cache@v4
-        with:
-          path: |
-            .dart_tool/build
-            **/.dart_tool/build
-          key: ${{ runner.os }}-build_runner-${{ hashFiles('**/pubspec.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build_runner-
 
       - name: Run code generation (Drift)
         run: dart run build_runner build --delete-conflicting-outputs
@@ -52,11 +45,11 @@ jobs:
           tag_name: v1.0.${{ github.run_number }}
           name: SlimUp v1.0.${{ github.run_number }}
           body: |
-            🌿 SlimUp 减肥打卡激励App
+            SlimUp 减肥打卡激励App
 
             更新内容请查看下方 commit 记录
 
-            **安装方式：** 下载 `app-release.apk`，传输到安卓手机安装即可
+            安装方式：下载 app-release.apk，传输到安卓手机安装即可
           files: build/app/outputs/flutter-apk/app-release.apk
           generate_release_notes: true
         env:
