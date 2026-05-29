@@ -3,8 +3,6 @@ name: Build APK
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -20,32 +18,45 @@ jobs:
         with:
           flutter-version: '3.22.0'
           channel: 'stable'
+          cache: true
 
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Cache build_runner
+        uses: actions/cache@v4
+        with:
+          path: |
+            .dart_tool/build
+            **/.dart_tool/build
+          key: ${{ runner.os }}-build_runner-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build_runner-
+
       - name: Run code generation (Drift)
         run: dart run build_runner build --delete-conflicting-outputs
-        continue-on-error: true
-
-      - name: Analyze code
-        run: flutter analyze
-        continue-on-error: true
 
       - name: Build APK
         run: flutter build apk --release
 
-      - name: Upload APK
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: slimup-release
           path: build/app/outputs/flutter-apk/app-release.apk
 
-      - name: Create Release
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: softprops/action-gh-release@v1
+      - name: Create Release with APK
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
+          name: SlimUp v1.0.${{ github.run_number }}
+          body: |
+            🌿 SlimUp 减肥打卡激励App
+
+            更新内容请查看下方 commit 记录
+
+            **安装方式：** 下载 `app-release.apk`，传输到安卓手机安装即可
           files: build/app/outputs/flutter-apk/app-release.apk
           generate_release_notes: true
         env:
