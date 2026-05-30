@@ -5,6 +5,9 @@ on:
     branches: [main]
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -51,6 +54,5 @@ jobs:
 
             安装方式：下载 app-release.apk，传输到安卓手机安装即可
           files: build/app/outputs/flutter-apk/app-release.apk
-          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
