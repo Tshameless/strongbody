@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/constants/achievements.dart';
+import 'package:slimup/core/theme/app_colors.dart';
+import 'package:slimup/core/constants/achievements.dart';
 import 'widgets/achievement_item.dart';
 
 class AchievementPage extends ConsumerWidget {

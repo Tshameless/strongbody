@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
+import 'package:slimup/core/theme/app_colors.dart';
 
 class WeightSlider extends StatelessWidget {
   final double value;
@@ -18,9 +18,9 @@ class WeightSlider extends StatelessWidget {
         SliderTheme(
           data: SliderThemeData(
             activeTrackColor: AppColors.mintGreen,
-            inactiveTrackColor: AppColors.mintGreen.withValues(alpha: 0.15),
+            inactiveTrackColor: AppColors.mintGreen.withOpacity(0.15),
             thumbColor: AppColors.bgWhite,
-            overlayColor: AppColors.mintGreen.withValues(alpha: 0.12),
+            overlayColor: AppColors.mintGreen.withOpacity(0.12),
             thumbShape: const RoundSliderThumbShape(
               enabledThumbRadius: 14,
               elevation: 4,
@@ -29,8 +29,8 @@ class WeightSlider extends StatelessWidget {
             tickMarkShape: const RoundSliderTickMarkShape(
               tickMarkRadius: 2,
             ),
-            activeTickMarkColor: AppColors.mintGreen.withValues(alpha: 0.5),
-            inactiveTickMarkColor: AppColors.mintGreen.withValues(alpha: 0.2),
+            activeTickMarkColor: AppColors.mintGreen.withOpacity(0.5),
+            inactiveTickMarkColor: AppColors.mintGreen.withOpacity(0.2),
           ),
           child: Slider(
             value: value,

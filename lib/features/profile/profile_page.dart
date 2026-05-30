@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/theme/app_colors.dart';
+import 'package:slimup/core/theme/app_colors.dart';
 import 'widgets/profile_menu_item.dart';
 
 class ProfilePage extends ConsumerWidget {
@@ -149,7 +149,7 @@ class ProfilePage extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.mintGreen.withValues(alpha: 0.3),
+            color: AppColors.mintGreen.withOpacity(0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -164,9 +164,9 @@ class ProfilePage extends ConsumerWidget {
             height: 64,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: Colors.white.withValues(alpha: 0.3),
+              color: Colors.white.withOpacity(0.3),
               border: Border.all(
-                color: Colors.white.withValues(alpha: 0.6),
+                color: Colors.white.withOpacity(0.6),
                 width: 2,
               ),
             ),
@@ -194,7 +194,7 @@ class ProfilePage extends ConsumerWidget {
                   '已坚持 28 天',
                   style: TextStyle(
                     fontSize: 14,
-                    color: Colors.white.withValues(alpha: 0.9),
+                    color: Colors.white.withOpacity(0.9),
                   ),
                 ),
               ],
@@ -236,7 +236,7 @@ class ProfilePage extends ConsumerWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.mintGreen.withValues(alpha: 0.1),
+            color: AppColors.mintGreen.withOpacity(0.1),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

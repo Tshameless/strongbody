@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
+import 'package:slimup/core/theme/app_colors.dart';
 
 class WeightCard extends StatelessWidget {
   final double currentWeight;
@@ -31,7 +31,7 @@ class WeightCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: AppColors.mintGreen.withValues(alpha: 0.08),
+            color: AppColors.mintGreen.withOpacity(0.08),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
@@ -56,7 +56,7 @@ class WeightCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
                   color: isLoss
-                      ? AppColors.mintGreen.withValues(alpha: 0.1)
+                      ? AppColors.mintGreen.withOpacity(0.1)
                       : AppColors.warmOrangeLight,
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -139,7 +139,7 @@ class WeightCard extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: progress,
                   minHeight: 8,
-                  backgroundColor: AppColors.mintGreen.withValues(alpha: 0.15),
+                  backgroundColor: AppColors.mintGreen.withOpacity(0.15),
                   valueColor: const AlwaysStoppedAnimation<Color>(AppColors.mintGreen),
                 ),
               ),

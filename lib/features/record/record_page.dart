@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/theme/app_colors.dart';
-import '../../routing/app_router.dart';
+import 'package:slimup/core/theme/app_colors.dart';
+import 'package:slimup/routing/app_router.dart';
+import 'package:go_router/go_router.dart';
 import 'widgets/weight_slider.dart';
 
 // 选中的日期
@@ -159,7 +160,7 @@ class RecordPage extends ConsumerWidget {
           context.go(navItems[index].path);
         },
         backgroundColor: AppColors.bgWhite,
-        indicatorColor: AppColors.mintGreen.withValues(alpha: 0.12),
+        indicatorColor: AppColors.mintGreen.withOpacity(0.12),
         destinations: navItems.map((item) {
           return NavigationDestination(
             icon: Icon(item.icon),

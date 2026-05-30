@@ -22,7 +22,7 @@ class CustomCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(borderRadius),
       ),
-      shadowColor: const Color(0xFF4CAF50).withValues(alpha: 0.15),
+      shadowColor: const Color(0xFF4CAF50).withOpacity(0.15),
       color: Colors.white,
       margin: EdgeInsets.zero,
       child: InkWell(

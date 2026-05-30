@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:uuid/uuid.dart';
 import 'dart:io';
 import 'tables.dart';
 
@@ -28,7 +29,8 @@ class AppDatabase extends _$AppDatabase {
       await m.createAll();
       // 插入默认用户
       await into(users).insert(UsersCompanion.insert(
-        nickname: '我',
+        id: const Uuid().v4(),
+        nickname: const Value('我'),
         createdAt: Value(DateTime.now()),
         updatedAt: Value(DateTime.now()),
       ));

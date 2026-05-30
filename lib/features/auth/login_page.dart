@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/theme/app_colors.dart';
+import 'package:slimup/core/theme/app_colors.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -64,7 +64,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColors.mintGreen.withValues(alpha: 0.3),
+                color: AppColors.mintGreen.withOpacity(0.3),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
               ),
@@ -125,7 +125,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppColors.mintGreen.withValues(alpha: 0.15),
+                color: AppColors.mintGreen.withOpacity(0.15),
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -174,7 +174,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide(
-                color: AppColors.mintGreen.withValues(alpha: 0.15),
+                color: AppColors.mintGreen.withOpacity(0.15),
               ),
             ),
             focusedBorder: OutlineInputBorder(
@@ -201,7 +201,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
           backgroundColor: AppColors.mintGreen,
           foregroundColor: Colors.white,
           elevation: 2,
-          shadowColor: AppColors.mintGreen.withValues(alpha: 0.3),
+          shadowColor: AppColors.mintGreen.withOpacity(0.3),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),

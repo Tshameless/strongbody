@@ -103,7 +103,7 @@ class AppTheme {
           borderRadius: BorderRadius.all(Radius.circular(16)),
         ),
       ),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
+      progressIndicatorTheme: ProgressIndicatorThemeData(
         color: AppColors.mintGreen,
         linearTrackColor: AppColors.mintGreenLight,
       ),
@@ -227,7 +227,7 @@ class AppTheme {
         type: BottomNavigationBarType.fixed,
         elevation: 8,
       ),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
+      progressIndicatorTheme: ProgressIndicatorThemeData(
         color: AppColorsDark.mintGreen,
         linearTrackColor: AppColorsDark.mintGreen.withOpacity(0.2),
       ),

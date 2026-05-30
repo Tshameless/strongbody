@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/constants/achievements.dart';
+import 'package:slimup/core/theme/app_colors.dart';
+import 'package:slimup/core/constants/achievements.dart';
 
 class AchievementItem extends StatelessWidget {
   final AchievementDef achievement;

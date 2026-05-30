@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../core/theme/app_colors.dart';
+import 'package:slimup/core/theme/app_colors.dart';
 import '../../../core/constants/motivations.dart';
 
 class MotivationCard extends StatelessWidget {
@@ -23,7 +23,7 @@ class MotivationCard extends StatelessWidget {
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppColors.mintGreen.withValues(alpha: 0.15),
+          color: AppColors.mintGreen.withOpacity(0.15),
         ),
       ),
       child: Row(
@@ -32,7 +32,7 @@ class MotivationCard extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: AppColors.mintGreen.withValues(alpha: 0.1),
+              color: AppColors.mintGreen.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Center(

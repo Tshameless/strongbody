@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/constants/motivations.dart';
-import '../../routing/app_router.dart';
+import 'package:slimup/core/theme/app_colors.dart';
+import 'package:slimup/core/constants/motivations.dart';
+import 'package:slimup/routing/app_router.dart';
+import 'package:go_router/go_router.dart';
 import 'widgets/weight_card.dart';
 import 'widgets/stats_row.dart';
 import 'widgets/motivation_card.dart';
@@ -89,7 +90,7 @@ class HomePage extends ConsumerWidget {
           context.go(navItems[index].path);
         },
         backgroundColor: AppColors.bgWhite,
-        indicatorColor: AppColors.mintGreen.withValues(alpha: 0.12),
+        indicatorColor: AppColors.mintGreen.withOpacity(0.12),
         destinations: navItems.map((item) {
           return NavigationDestination(
             icon: Icon(item.icon),
