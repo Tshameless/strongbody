@@ -114,7 +114,7 @@ class WeightChart extends StatelessWidget {
                   enabled: true,
                   handleBuiltInTouches: true,
                   touchTooltipData: LineTouchTooltipData(
-                    tooltipBgColor: AppColors.mintGreenDark,
+                    getTooltipColor: (_) => AppColors.mintGreenDark,
                     tooltipRoundedRadius: 8,
                     getTooltipItems: (touchedSpots) => touchedSpots
                         .map((spot) => LineTooltipItem(
